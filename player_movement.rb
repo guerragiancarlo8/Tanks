@@ -57,8 +57,6 @@ class Tank
 end
 
 
-
-
 class GameWindow < Gosu::Window
 	MAP_FILE = File.join(File.dirname(__FILE__), 'island.json')
 
