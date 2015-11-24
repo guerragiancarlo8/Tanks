@@ -22,6 +22,7 @@ class MenuState < Gamestate
 	def music
 		#variable de clase cachea la canción para evitar
 		#tener que recargarla
+		#pregunta qué significa el ||=
 		@@music ||= Gosu::Song.new(
 			$window, Game.media_path('menu_music.mp3'))
 	end
