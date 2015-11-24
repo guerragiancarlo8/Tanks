@@ -3,7 +3,7 @@ class Camera
 
 	def initialize(target)
 		@target = target
-		@x,@y = target.x,target.y
+		@x,@y = target.x, target.y
 		@zoom = 1
 	end
 
@@ -11,7 +11,7 @@ class Camera
 		x0,x1,y0,y1 = viewport
 		(x0-obj.width..x1).include?(x) &&
 			(y0 - obj.height..y1).include?(y)
-		end
+		
 	end
 
 	def mouse_coords
@@ -62,7 +62,7 @@ class Camera
 			x + 10, y, Gosu::Color::RED, 100)
 		$window.draw_line(
 			x,y - 10, Gosu::Color::RED,
-			x,y + 10, Gosu::COlor::RED, 100)
+			x,y + 10, Gosu::Color::RED, 100)
 	end
 
 	private

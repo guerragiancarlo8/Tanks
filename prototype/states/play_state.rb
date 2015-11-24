@@ -18,7 +18,7 @@ class PlayState < GameState
 		bullet = @tank.update(@camera)
 		@bullets << bullet if bullet
 		@bullets.map(&:update)
-		@bullets.reject!(&done?)
+		@bullets.reject!(&:done?)
 		@camera.update
 		$window.caption = 'Tanks Prototype. ' <<
 			"[FPS: #{Gosu.fps}. Tank @ #{@tank.x.round}:#{@tank.y.round}]"
@@ -45,7 +45,8 @@ class PlayState < GameState
 		if id == Gosu::MsLeft
 			bullet = @tank.shoot(*@camera.mouse_coords)
 			@bullets << bullet if bullet
-		end$window.close if id == Gosu::KbQ
+		end
+		$window.close if id == Gosu::KbQ
 		if id == Gosu::KbEscape
 			GameState.switch(MenuState.instance)
 		end

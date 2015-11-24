@@ -24,12 +24,12 @@ class Tank
 
 	def shoot(target_x,target_y)
 		if Gosu.milliseconds - @last_shot > SHOOT_DELAY
-			@last_shot = Gosul.milliseconds
+			@last_shot = Gosu.milliseconds
 			Bullet.new(@x,@y,target_x,target_y).fire(100)
 		end
 	end
 
-	def update
+	def update(camera)
 		d_x,d_y = camera.target_delta_on_screen
 		
 		atan = Math.atan2(($window.width/2)-d_x - $window.mouse_x,
@@ -82,7 +82,7 @@ class Tank
 
 	private
 
-	def any_buttons_down?(*buttons)
+	def any_button_down?(*buttons)
 		buttons.each do |b|
 			return true if $window.button_down?(b)
 		end
@@ -90,22 +90,22 @@ class Tank
 	end
 
 	def change_angle(previous_angle, up, down, right, left)
-		if @window.button_down?(up)
+		if $window.button_down?(up)
 			angle = 0.0
-			angle += 45.0 if @window.button_down?(left)
-			angle -= 45.0 if @window.button_down?(right)
-		elsif @window.button_down?(down)
+			angle += 45.0 if $window.button_down?(left)
+			angle -= 45.0 if $window.button_down?(right)
+		elsif $window.button_down?(down)
 			angle = 180.0
-			angle -= 45.0 if @window.button_down?(left)
-			angle += 45.0 if @window.button_down?(right)
-		elsif @window.button_down?(left)
+			angle -= 45.0 if $window.button_down?(left)
+			angle += 45.0 if $window.button_down?(right)
+		elsif $window.button_down?(left)
 			angle = 90.0
-			angle += 45.0 if @window.button_down?(up)
-			angle -= 45.0 if @window.button_down?(down)
-		elsif @window.button_down?(right)
+			angle += 45.0 if $window.button_down?(up)
+			angle -= 45.0 if $window.button_down?(down)
+		elsif $window.button_down?(right)
 			angle = 270.0
-			angle -= 45.0 if @window.button_down?(up)
-			angle += 45.0 if @window.button_down?(down)
+			angle -= 45.0 if $window.button_down?(up)
+			angle += 45.0 if $window.button_down?(down)
 		end
 		angle || previous_angle
 	end

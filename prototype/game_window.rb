@@ -11,7 +11,7 @@ class GameWindow < Gosu::Window
 
 	def draw
 		@state.draw
-	ends
+	end
 
 	def needs_redraw?
 		@state.needs_redraw?
@@ -21,3 +21,4 @@ class GameWindow < Gosu::Window
 		@state.button_down(id)
 	end
 end
+

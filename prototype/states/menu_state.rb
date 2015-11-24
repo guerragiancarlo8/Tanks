@@ -1,7 +1,8 @@
 require 'singleton'
 
-class MenuState < Gamestate
+class MenuState < GameState
 	include Singleton
+	attr_accessor :play_state
 
 	def initialize
 		@message = Gosu::Image.from_text(
@@ -35,14 +36,8 @@ class MenuState < Gamestate
 	end
 
 	def draw
-		@message.draw(
-			$window.width/2 - @message.width/2,
-			$window.height/2 = @message.height/2,
-			10)
-		@info.draw(
-			$window.width/2 - @info.width/2,
-			$window.height/2 - @info.height/2 + 200,
-			10)
+		@message.draw($window.width/2 - @message.width/2,$window.height/2 - @message.height/2,10)
+		@info.draw($window.width/2 - @info.width/2,$window.height/2 - @info.height/2 + 200,10)
 	end
 
 	def button_down(id)
