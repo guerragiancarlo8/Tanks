@@ -3,8 +3,21 @@ require_relative '../entities/tank'
 require_relative '../entities/camera'
 require_relative '../entities/bullet'
 require_relative '../entities/explosion'
+require 'ruby-prof' if ENV['ENABLE_PROFILING']
 #re-leer game coordinate system
 class PlayState < GameState
+
+	def enter
+		RubyProf.start if ENV['ENABLE_PROFILING']
+	end
+
+	def leave
+		if ENV['ENABLE_PROFILING']
+			result = RubyProf.stop
+			printer = RubyProf::FlatPrinter.new(result)
+			printer.print(STDOUT)
+		end
+	end
 
 	def initialize
 		@map = Map.new
@@ -20,10 +33,18 @@ class PlayState < GameState
 		@bullets.map(&:update)
 		@bullets.reject!(&:done?)
 		@camera.update
-		$window.caption = 'Tanks Prototype. ' <<
-			"[FPS: #{Gosu.fps}. Tank @ #{@tank.x.round}:#{@tank.y.round}]"
+		
+		update_caption
 	end
 
+	def update_caption
+		now = Gosu.milliseconds
+		if now - (@caption_updated_at || 0 ) > 1000
+			$window.caption = 'Tanks Prototype. ' <<
+			"[FPS: #{Gosu.fps}. Tank @ #{@tank.x.round}:#{@tank.y.round}]"
+			@caption_updated_at = now
+		end
+	end
 	def draw
 		cam_x = @camera.x
 		cam_y = @camera.y
@@ -46,7 +67,11 @@ class PlayState < GameState
 			bullet = @tank.shoot(*@camera.mouse_coords)
 			@bullets << bullet if bullet
 		end
-		$window.close if id == Gosu::KbQ
+		
+		if id == Gosu::KbQ
+			leave
+			$window.close
+		end
 		if id == Gosu::KbEscape
 			GameState.switch(MenuState.instance)
 		end

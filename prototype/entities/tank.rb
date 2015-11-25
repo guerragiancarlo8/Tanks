@@ -37,6 +37,7 @@ class Tank
 		@gun_angle = -atan*180/Math::PI
 		new_x,new_y=@x,@y
 
+		shift = Game.adjust_speed(speed)
 		new_x -= speed if $window.button_down?(Gosu::KbA)
 		new_x += speed if $window.button_down?(Gosu::KbD)
 		new_y -= speed if $window.button_down?(Gosu::KbW)

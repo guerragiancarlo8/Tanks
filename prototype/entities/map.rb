@@ -29,13 +29,17 @@ class Map
 	end
 
 	def draw(camera)
-		@map.each do |x,row|
-			row.each do |y,val|
-				tile = @map[x][y]
-				map_x = x*TILE_SIZE
-				map_y = y*TILE_SIZE
-				#solo pinta loseta si la cámara lo puede ver
-				if camera.can_view?(map_x,map_y,tile)
+		#lo que el jugador ve
+		viewport = camera.viewport
+		viewport.map! {|p| p/TILE_SIZE}
+		x0,x1,y0,y1 = viewport.map(&:to_i)
+		(x0..x1).each do |x|
+			(y0..y1).each do |y|
+				row = @map[x]
+				if row
+					tile = @map[x][y]
+					map_x = x * TILE_SIZE
+					map_y = y * TILE_SIZE
 					tile.draw(map_x,map_y,0)
 				end
 			end

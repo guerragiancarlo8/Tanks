@@ -1,5 +1,5 @@
 class Explosion
-	FRAME_DELAY = 10
+	FRAME_DELAY = 16.66
 
 	def animation
 		@@animation ||=
@@ -17,7 +17,8 @@ class Explosion
 	end
 
 	def update
-		@current_frame += 1 if frame_expired?
+		advance_frame
+		#@current_frame += 1 if frame_expired?
 	end
 
 	def draw
@@ -30,20 +31,17 @@ class Explosion
 	end
 
 	def done?
-		@done ||= @current_frame == animation.size
+		@done ||= @current_frame >= animation.size
 	end
 
 	private
 
-	def current_frame
-		animation[@current_frame % animation.size]
-	end
-
-	def frame_expired?
+	def advance_frame
 		now = Gosu.milliseconds
-		@last_frame ||= now
-		if (now-@last_frame) > FRAME_DELAY
+		delta = now - (@last_frame ||= now)
+		if delta > FRAME_DELAY
 			@last_frame = now
 		end
+		@current_frame += (delta/FRAME_DELAY).floor
 	end
 end
