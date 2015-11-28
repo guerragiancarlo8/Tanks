@@ -1,29 +1,22 @@
 #entry point
-
 require 'gosu'
-require_relative './states/game_state'
-require_relative './states/menu_state'
-require_relative './states/play_state'
-require_relative 'game_window'
 
-module Game
-	def self.track_update_interval
-		now = Gosu.milliseconds
-		@update_interval = (now - (@last_update ||= 0)).to_f
-		@last_update = now
+root_dir = File.dirname(__FILE__)
+require_pattern = File.join(root_dir, '**/*.rb')
+@failed = []
+#dynamically require everything
+Dir.glob(require_pattern).each do |f|
+	next if f.end_with?('/main.rb')
+	begin
+		require_relative f.gsub("#{root_dir}/",'')
+	rescue
+		#may fail if parent class not required yet
+		@failed << f
 	end
-
-	def self.update_interval
-		@update_interval ||= $window.update_interval
-	end
-
-	def self.adjust_speed(speed)
-		speed * update_interval / 33.33
-	end
-	def self.media_path(file)
-		File.join(File.dirname(File.dirname(
-			__FILE__)),'media',file)
-	end
+end
+#retry unresolved requires
+@failed.each do |f|
+	require_relative f.gsub("#{root_dir}/",'')
 end
 
 $window = GameWindow.new
