@@ -1,6 +1,7 @@
 #entry point
 require 'gosu'
 
+
 root_dir = File.dirname(__FILE__)
 require_pattern = File.join(root_dir, '**/*.rb')
 @failed = []
@@ -19,6 +20,7 @@ end
 	require_relative f.gsub("#{root_dir}/",'')
 end
 
+$debug = false
 $window = GameWindow.new
 GameState.switch(MenuState.instance)
 $window.show

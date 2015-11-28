@@ -8,8 +8,8 @@ class PlayState < GameState
     @object_pool = ObjectPool.new(@map)
     @tank = Tank.new(@object_pool, PlayerInput.new(@camera))
     @camera.target = @tank
-    50.times do
-      Tank.new(@object_pool, AiInput.new)
+    10.times do |i|
+      Tank.new(@object_pool, AiInput.new(@object_pool))
     end
   end
 
@@ -30,6 +30,14 @@ class PlayState < GameState
     @object_pool.objects.reject!(&:removable?)
     @camera.update
     update_caption
+    if @camera.target.health.dead?
+      close_tank = @object_pool.nearby(@camera.target,500).select do |o|
+        o.class == Tank && !o.health.dead?
+      end.first
+      if close_tank
+        @camera.target = close_tank
+      end
+    end
   end
 
   def draw
@@ -55,6 +63,11 @@ class PlayState < GameState
     end
     if id == Gosu::KbEscape
       GameState.switch(MenuState.instance)
+    end
+    if id == Gosu::KbT
+      t = Tank.new(@object_pool,
+                    AiInput.new(@object_pool))
+      t.x, t.y = @camera.mouse_coords
     end
   end
 

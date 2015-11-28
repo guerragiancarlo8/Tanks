@@ -26,4 +26,12 @@ class Tank < GameObject
     end
   end
 
+  def can_shoot?
+    Gosu.milliseconds - (@last_shot || 0) > SHOOT_DELAY
+  end
+
+  def to_s
+    "Tank [#{@health.health}@#{@x}:#{@y}@#{@physics.speed.round(2)}px/tick]"
+  end
+
 end
