@@ -2,7 +2,7 @@ class Explosion < GameObject
   attr_accessor :x, :y
 
   def initialize(object_pool, x, y)
-    super(object_pool)
+    super(object_pool, x, y)
     @object_pool = object_pool
     @x, @y = x, y
     if @object_pool.map.can_move_to?(x,y)

@@ -49,11 +49,18 @@ class PlayState < GameState
     off_x =  $window.width / 2 - cam_x
     off_y =  $window.height / 2 - cam_y
     viewport = @camera.viewport
+
+    x1, x2, y1, y2 = viewport
+    box = AxisAlignedBoundingBox.new(
+      [x1 + (x2 - x1)/2, y1 + (y2 - y1)/2],
+      [x1 - Map::TILE_SIZE, y1 - Map::TILE_SIZE])
     $window.translate(off_x, off_y) do
       zoom = @camera.zoom
       $window.scale(zoom, zoom, cam_x, cam_y) do
         @map.draw(viewport)
-        @object_pool.objects.map { |o| o.draw(viewport) }
+        @object_pool.query_range(box).map do |o|
+          o.draw(viewport)
+        end
       end
     end
     @camera.draw_crosshair

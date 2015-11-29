@@ -2,12 +2,12 @@ class Bullet < GameObject
   attr_accessor :x, :y, :target_x, :target_y, :speed, :fired_at, :source
 
   def initialize(object_pool, source_x, source_y, target_x, target_y)
-    super(object_pool)
+    super(object_pool, source_x, source_y)
     @x, @y = source_x, source_y
     @target_x, @target_y = target_x, target_y
     BulletPhysics.new(self,object_pool)
     BulletGraphics.new(self)
-    BulletSounds.play
+    BulletSounds.play(self, object_pool.camera)
   end
 
   def box

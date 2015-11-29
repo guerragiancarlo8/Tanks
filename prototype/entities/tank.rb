@@ -4,7 +4,7 @@ class Tank < GameObject
     :gun_angle, :sounds, :physics, :graphics, :health, :input
 
   def initialize(object_pool, input)
-    super(object_pool)
+    super(object_pool, object_pool.map.spawn_point)
     @input = input
     @input.control(self)
     @physics = TankPhysics.new(self, object_pool)
