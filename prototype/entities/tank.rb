@@ -34,4 +34,18 @@ class Tank < GameObject
     "Tank [#{@health.health}@#{@x}:#{@y}@#{@physics.speed.round(2)}px/tick]"
   end
 
+  def on_collision(object)
+    return unless object
+    #avoid recursion
+    if object.class == Tank
+      #Inform ai about hit
+      object.input.on_collision(object)
+    else
+      #call only non-tanks
+      object.on_collision(self)
+    end
+    if object.class != Bullet
+      @sounds.collide if @physics.speed > 1
+    end
+  end
 end
