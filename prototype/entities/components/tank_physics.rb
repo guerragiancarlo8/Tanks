@@ -1,6 +1,5 @@
 class TankPhysics < Component
-  attr_accessor :speed, :in_collision,
-    :inertia_x, :inertia_y, :collides_with
+  attr_accessor :speed, :in_collision, :collides_with
 
   def initialize(game_object, object_pool)
     super(game_object)
@@ -11,8 +10,7 @@ class TankPhysics < Component
 
   def can_move_to?(x, y)
     old_x, old_y = object.x, object.y
-    object.x = x
-    object.y = y
+    object.move(x, y)
     return false unless @map.can_move_to?(x, y)
     @object_pool.nearby(object, 100).each do |obj|
       next if obj.class == Bullet && obj.source == object
@@ -30,8 +28,7 @@ class TankPhysics < Component
     end
     true
   ensure
-    object.x = old_x
-    object.y = old_y
+    object.move(old_x, old_y)
   end
 
   def change_direction(new_direction)
@@ -66,8 +63,8 @@ class TankPhysics < Component
   #    10   9
   # 12 11   8   7
   def box
-    w = box_width / 2 - 1
-    h = box_height / 2 - 1
+    w = box_width/2 - 1
+    h = box_height/2 - 1
     tw = 8 # track width
     fd = 8 # front depth
     rd = 6 # rear depth
@@ -99,7 +96,7 @@ class TankPhysics < Component
     if @speed > 0
       new_x, new_y = x, y
       speed = apply_movement_penalty(@speed)
-      shift = Utils.adjust_speed(speed)
+      shift = Utils.adjust_speed(speed) * object.speed_modifier
       case @object.direction.to_i
       when 0
         new_y -= shift
@@ -123,11 +120,10 @@ class TankPhysics < Component
         new_y -= shift
       end
       if can_move_to?(new_x, new_y)
-        object.x, object.y = new_x, new_y
-        @inertia_x = @inertia_y = shift
+        object.move(new_x, new_y)
         @in_collision = false
       else
-        object.sounds.collide if @speed > 1 && @collides_with.class == Tank
+        object.on_collision(@collides_with)
         @speed = 0.0
         @in_collision = true
       end
@@ -176,5 +172,4 @@ class TankPhysics < Component
   def collides_with_point?(x, y)
     Utils.point_in_poly(x, y, box)
   end
-
 end

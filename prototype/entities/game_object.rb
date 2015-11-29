@@ -17,10 +17,6 @@ class GameObject
     @object_pool.tree_insert(self)
   end
 
-  def components
-    @components
-  end
-
   def update
     @components.map(&:update)
   end
@@ -33,14 +29,6 @@ class GameObject
     @removable
   end
 
-  def box
-
-  end
-
-  def collide
-
-  end
-
   def mark_for_removal
     @removable = true
   end
@@ -48,14 +36,20 @@ class GameObject
   def on_collision(object)
   end
 
+  def effect?
+    false
+  end
+
+  def box
+  end
+
+  def collide
+  end
+
   protected
 
   def object_pool
     @object_pool
   end
-
   #la clase que necesite effect puede sobre-escribirla
-  def effect?
-    false
-  end
 end

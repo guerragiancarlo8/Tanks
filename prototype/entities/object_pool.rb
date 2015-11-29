@@ -1,5 +1,5 @@
 class ObjectPool
-  attr_accessor :objects, :map, :camera
+  attr_accessor :objects, :map, :camera, :powerup_respawn_queue
 
   def size
     @objects.size
@@ -8,9 +8,10 @@ class ObjectPool
   def initialize(box)
     @tree = QuadTree.new(box)
     @objects = []
+    @powerup_respawn_queue = PowerupRespawnQueue.new
   end
 
-  def add(objects)
+  def add(object)
     @objects << object
     @tree.insert(object)
   end
@@ -31,6 +32,7 @@ class ObjectPool
         true
       end
     end
+    @powerup_respawn_queue.respawn(self)
   end
 
   def nearby(object, max_distance)
@@ -41,8 +43,8 @@ class ObjectPool
       AxisAlignedBoundingBox.new([cx,cy],[hx,hy]))
     results.select do |o|
       o != object &&
-      Utils.distance_between(
-        o.x, o.y, object.x, object.y) <= max_distance
+        Utils.distance_between(
+          o.x, o.y, object.x, object.y) <= max_distance
     end
   end
     

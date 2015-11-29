@@ -9,14 +9,15 @@ class TankSounds < Component
 	def update
 		id = object.object_id
 		if object.physics.moving?
-			move_volume = Utils.volume(object, @object_pool.camera)
+			move_volume = Utils.volume(
+				object, @object_pool.camera)
 			pan = Utils.pan(object, @object_pool.camera)
 			if driving_sound.paused?(id)
 				driving_sound.resume(id)
 			elsif driving_sound.stopped?(id)
 				driving_sound.play(id, pan, 0.5, 1, true)
 			end
-			driving_sound.play(id, pan, 0.5, 1, true)
+			driving_sound.volume_and_pan(id, move_volume * 0.5, pan)
 		else
 			if driving_sound.playing?(id)
 				driving_sound.pause(id)
@@ -39,6 +40,6 @@ class TankSounds < Component
 
 	def crash_sound
 		@@crash_sound ||= StereoSample.new(
-			$window, Utils.media_path('crash.ogg'))
+			$window, Utils.media_path('metal_interaction2.wav'))
 	end
 end

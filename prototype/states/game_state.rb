@@ -1,5 +1,4 @@
 #util para, por ejemplo, cambiar la música 
-
 class GameState
 
 	def self.switch(new_state)

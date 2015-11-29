@@ -1,5 +1,6 @@
 class Camera
-  attr_accessor :x, :y, :zoom, :target
+  attr_accessor :x, :y, :zoom
+  attr_reader :target
 
   def target=(target)
     @target = target
@@ -30,7 +31,8 @@ class Camera
   def update
     des_x, des_y = desired_spot
     shift = Utils.adjust_speed(
-      @target.physics.speed).floor + 1
+      @target.physics.speed).floor *
+      @target.speed_modifier + 1
     if @x < des_x
       if des_x - @x < shift
         @x = des_x
@@ -57,13 +59,6 @@ class Camera
         @y -= shift
       end
     end
-
-    shift_x = @target.physics.inertia_x
-    shift_y = @target.physics.inertia_y
-    @x += shift_x if @x < @target.x - $window.width / 4
-    @x -= shift_x if @x > @target.x + $window.width / 4
-    @y += shift_y if @y < @target.y - $window.height / 4
-    @y -= shift_y if @y > @target.y + $window.height / 4
 
     zoom_delta = @zoom > 0 ? 0.01 : 1.0
     zoom_delta = Utils.adjust_speed(zoom_delta)
@@ -92,14 +87,13 @@ class Camera
   end
 
   def draw_crosshair
+    factor = 0.5
     x = $window.mouse_x
     y = $window.mouse_y
-    $window.draw_line(
-      x - 10, y, Gosu::Color::RED,
-      x + 10, y, Gosu::Color::RED, 100)
-    $window.draw_line(
-      x, y - 10, Gosu::Color::RED,
-      x, y + 10, Gosu::Color::RED, 100)
+    c = crosshair
+    c.draw(x - c.width * factor/2,
+           y - c.height * factor/2,
+           1000, factor, factor)
   end
 
   def viewport
@@ -110,5 +104,10 @@ class Camera
     [x0, x1, y0, y1]
   end
 
-  
+  private
+
+  def crosshair
+    @crosshair ||= Gosu::Image.new(
+      $window, Utils.media_path('c_dot.png'),false)
+  end 
 end

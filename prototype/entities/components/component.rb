@@ -29,8 +29,4 @@ class Component
 	def y 
 		@object.y
 	end
-
-	def object
-		@object
-	end
 end 

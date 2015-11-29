@@ -1,11 +1,10 @@
-require 'ruby-prof' if ENV['ENABLE_PROFILING']
 class PlayState < GameState
   attr_accessor :update_interval
 
   def initialize
     @names = Names.new(
       Utils.media_path('names.txt'))
-    @object_pool = ObjectPool.new
+    @object_pool = ObjectPool.new(Map.bounding_box)
     @map = Map.new(@object_pool)
     @map.spawn_points(15)
     @camera = Camera.new
@@ -21,26 +20,12 @@ class PlayState < GameState
     puts "Object Pool: #{@object_pool.objects.size}"
   end
 
-  def enter
-    RubyProf.start if ENV['ENABLE_PROFILING']
-  end
-
-  def leave
-    if ENV['ENABLE_PROFILING']
-      result = RubyProf.stop
-      printer = RubyProf::FlatPrinter.new(result)
-      printer.print(STDOUT)
-    end
-  end
-
   def update
     StereoSample.cleanup
-    @object_pool.objects.map(&:update)
-    @object_pool.objects.reject!(&:removable?)
+    @object_pool.update_all
     @camera.update
     @radar.update
     update_caption
-    
   end
 
   def draw
@@ -49,7 +34,6 @@ class PlayState < GameState
     off_x =  $window.width / 2 - cam_x
     off_y =  $window.height / 2 - cam_y
     viewport = @camera.viewport
-
     x1, x2, y1, y2 = viewport
     box = AxisAlignedBoundingBox.new(
       [x1 + (x2 - x1)/2, y1 + (y2 - y1)/2],
@@ -82,7 +66,28 @@ class PlayState < GameState
     end
   end
 
+  def leave
+    StereoSample.stop_all
+    if @profiling_now
+      toggle_profiling
+    end
+    puts "Pool: #{@object_pool.size}"
+  end
+
   private
+
+  def toggle_profiling
+    require 'ruby-prof' unless defined?(RubyProf)
+    if @profiling_now
+      result = RubyProf.stop
+      printer = RubyProf::FlatPrinter.new(result)
+      printer.print(STDOUT, min_percent: 0.01)
+      @profiling_now = false
+    else
+      RubyProf.start
+      @profiling_now = true
+    end
+  end
 
   def update_caption
     now = Gosu.milliseconds

@@ -1,4 +1,5 @@
 class StereoSample
+	MAX_POLIPHONY = 16
 	@@all_instances = []
 
 	def self.register_instances(instances)
@@ -14,6 +15,16 @@ class StereoSample
 			end
 		end
 	end
+
+	def self.stop_all
+    @@all_instances.each do |instances|
+      instances.each do |key, instance|
+        if instance.playing?
+          instance.stop
+        end
+      end
+    end
+  end
 
 	def initialize(window, sound_l, sound_r = sound_l)
 		@sound_l = Gosu::Sample.new(window, sound_l)
@@ -43,6 +54,9 @@ class StereoSample
 
 	def play(id = :default, pan = 0,
 						volume = 1, speed = 1, looping = false)
+		if @instances.size > MAX_POLIPHONY
+			return
+		end
 		@instances["#{id}_l"] = @sound_l.play_pan(
 			-0.2, 0, speed, looping)
 		@instances["#{id}_r"] = @sound_r.play_pan(
@@ -66,6 +80,7 @@ class StereoSample
 	end
 
 	def volume_and_pan(id, volume, pan)
+		return unless @instances["#{id}_l"]
 		if pan > 0 
 			pan_l = 1 - pan * 2
 			pan_r = 1

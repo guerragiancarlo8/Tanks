@@ -1,5 +1,4 @@
 require 'singleton'
-
 class MenuState < GameState
 	include Singleton
 	attr_accessor :play_state

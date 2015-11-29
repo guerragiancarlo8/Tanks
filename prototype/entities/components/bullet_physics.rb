@@ -4,8 +4,9 @@ class BulletPhysics < Component
 
   def initialize(game_object, object_pool)
     super(game_object)
+    x, y = point_at_distance(START_DIST)
+    object.move(x, y)
     @object_pool = object_pool
-    object.x, object.y = point_at_distance(START_DIST)
     if trajectory_length > MAX_DIST
       object.target_x, object.target_y = point_at_distance(MAX_DIST)
     end
@@ -16,7 +17,7 @@ class BulletPhysics < Component
     now = Gosu.milliseconds
     @last_update ||= object.fired_at
     fly_distance = (now - @last_update) * 0.001 * fly_speed
-    object.x, object.y = point_at_distance(fly_distance)
+    object.move(*point_at_distance(fly_distance))
     @last_update = now
     check_hit
     object.explode if arrived?
@@ -40,15 +41,21 @@ class BulletPhysics < Component
 
   def check_hit
     @object_pool.nearby(object, 50).each do |obj|
-      next if obj == object.source # Don't hit source tank
-      if Utils.point_in_poly(x, y, *obj.box)
-        # Direct hit - extra damage
-        obj.health.inflict_damage(20)
-        object.target_x = x
-        object.target_y = y
-        return
+      next if obj == object.source
+      if obj.class == Tree
+        if Utils.distance_between(x, y, obj.x, obj.y) < 10
+          return do_hit(obj)
+        end
+      elsif Utils.point_in_poly(x, y, *obj.box)
+        return do_hit(obj)
       end
     end
+  end
+
+  def do_hit(obj)
+    obj.health.inflict_damage(20)
+    object.target_x = x
+    object.target_y = y
   end
 
   def arrived?

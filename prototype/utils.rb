@@ -1,5 +1,11 @@
 module Utils
   HEARING_DISTANCE = 1000.0
+  DEBUG_COLORS = [
+    Gosu::Color::RED,
+    Gosu::Color::BLUE,
+    Gosu::Color::YELLOW,
+    Gosu::Color::WHITE
+  ]
   def self.media_path(file)
     File.join(File.dirname(File.dirname(
       __FILE__)), 'media', file)
@@ -38,6 +44,7 @@ module Utils
 
   def self.rotate(angle, around_x, around_y, *points)
     result = []
+    angle = angle * Math::PI / 180.0
     points.each_slice(2) do |x,y|
       r_x = Math.cos(angle) * (x - around_x) -
         Math.sin(angle) * (y - around_y) + around_x
@@ -87,6 +94,19 @@ module Utils
     x = source_x + Math.cos(angle) * distance
     y = source_y + Math.sin(angle) * distance
     [x,y]
+  end
+
+  def self.mark_corners(box)
+    i = 0 
+    box.each_slice(2) do |x,y|
+      color = DEBUG_COLORS[i]
+      $window.draw_triangle(
+        x-3, y-3, color,
+        x,   y,   color,
+        x+3, y-3, color,
+        100)
+      i = (i + 1) % 4
+    end
   end
 
   def self.volume(object,camera)
