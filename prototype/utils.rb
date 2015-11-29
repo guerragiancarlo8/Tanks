@@ -109,6 +109,14 @@ module Utils
     end
   end
 
+  def self.title_font
+    media_path('top_secret.ttf')
+  end
+
+  def self.main_font
+    media_path('armalite_rifle.ttf')
+  end
+
   def self.volume(object,camera)
     return 1 if object == camera.target
     distance = Utils.distance_between(

@@ -1,5 +1,5 @@
 class PlayState < GameState
-  attr_accessor :update_interval
+  attr_accessor :update_interval, :object_pool
 
   def initialize
     @names = Names.new(
@@ -18,6 +18,7 @@ class PlayState < GameState
         @names.random, @object_pool))
     end
     puts "Object Pool: #{@object_pool.objects.size}"
+    @hud = HUD.new(@object_pool, @tank)
   end
 
   def update
@@ -26,6 +27,7 @@ class PlayState < GameState
     @camera.update
     @radar.update
     update_caption
+    @hud.update
   end
 
   def draw
@@ -49,6 +51,7 @@ class PlayState < GameState
     end
     @camera.draw_crosshair
     @radar.draw
+    @hud.draw
   end
 
   def button_down(id)
@@ -57,7 +60,9 @@ class PlayState < GameState
       $window.close
     end
     if id == Gosu::KbEscape
-      GameState.switch(MenuState.instance)
+      pause = PauseState.instance
+      pause.play_state = self
+      GameState.switch(pause)
     end
     if id == Gosu::KbT
       t = Tank.new(@object_pool,
@@ -68,10 +73,11 @@ class PlayState < GameState
 
   def leave
     StereoSample.stop_all
-    if @profiling_now
-      toggle_profiling
-    end
-    puts "Pool: #{@object_pool.size}"
+    @hud.active = false
+  end
+
+  def enter
+    @hud.active = true
   end
 
   private

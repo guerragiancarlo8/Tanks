@@ -1,19 +1,20 @@
 class AiInput < Component
 	UPDATE_RATE = 200
 	NAME_COLOR = Gosu::Color.argb(0xeeb10000)
+	attr_reader :stats
 
 	def initialize(name,object_pool)
 		@object_pool = object_pool
 		@name = name
 		super(nil)
 		@last_update = Gosu.milliseconds
+		@stats = Stats.new(name)
 	end
 
 	def control(obj)
 		self.object = obj
 		@vision = AiVision.new(obj, @object_pool,
 														rand(700..1200))
-
 		@gun = AiGun.new(obj, @vision)
 		@motion = TankMotionFSM.new(obj,@vision,@gun)
 	end
@@ -24,6 +25,7 @@ class AiInput < Component
 
 	def on_damage(amount)
 		@motion.on_damage(amount)
+		@stats.add_damage(amount)
 	end
 
 	def update
@@ -41,7 +43,7 @@ class AiInput < Component
 		@motion.draw(viewport)
 		@gun.draw(viewport)
 		@name_image ||= Gosu::Image.from_text(
-			$window,@name,Gosu.default_font_name,20)
+			$window,@name,Utils.main_font,20)
 		@name_image.draw(
 			x - @name_image.width/2 - 1,
 			y + object.graphics.height/2, 100,

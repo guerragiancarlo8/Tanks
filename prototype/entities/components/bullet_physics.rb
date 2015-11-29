@@ -44,16 +44,17 @@ class BulletPhysics < Component
       next if obj == object.source
       if obj.class == Tree
         if Utils.distance_between(x, y, obj.x, obj.y) < 10
-          return do_hit(obj)
+          return do_hit(obj) if obj.respond_to?(:health)
         end
       elsif Utils.point_in_poly(x, y, *obj.box)
+        #direct hit. extra damage
         return do_hit(obj)
       end
     end
   end
 
   def do_hit(obj)
-    obj.health.inflict_damage(20)
+    obj.health.inflict_damage(20, object.source)
     object.target_x = x
     object.target_y = y
   end

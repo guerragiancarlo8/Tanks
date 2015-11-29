@@ -1,11 +1,13 @@
 class PlayerInput < Component
   NAME_COLOR = Gosu::Color.argb(0xee084408)
+  attr_reader :stats
 
   def initialize(name,camera,object_pool)
     super(nil)
     @name = name
     @camera = camera
     @object_pool = object_pool
+    @stats = Stats.new(name)
   end
 
   def control(obj)
@@ -17,6 +19,7 @@ class PlayerInput < Component
   end
 
   def on_damage(amount)
+    @stats.add_damage(amount)
   end
 
   def update
@@ -42,7 +45,7 @@ class PlayerInput < Component
 
   def draw(viewport)
     @name_image ||= Gosu::Image.from_text(
-      $window,@name,Gosu.default_font_name,20)
+      $window,@name,Utils.main_font,20)
     @name_image.draw(
       x - @name_image.width/2 - 1,
       y + object.graphics.height/2, 100,

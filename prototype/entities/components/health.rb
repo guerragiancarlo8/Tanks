@@ -22,11 +22,17 @@ class Health < Component
 		update_image
 	end
 
-	def inflict_damage(amount)
+	def inflict_damage(amount,cause)
 		if @health > 0
 			@health_updated = true
+			if object.respond_to?(:input)
+				object.input.stats.add_damage(amount)
+				if cause.respond_to?(:input) && cause != object
+					cause.input.stats.add_damage_dealt(amount)
+				end
+			end
 			@health = [@health - amount.to_i,0].max
-			after_death if dead?
+			after_death(cause) if dead?
 		end
 	end
 
@@ -56,16 +62,16 @@ class Health < Component
 			font_size = 18
 			@image = Gosu::Image.from_text(
 				$window, text, 
-				Gosu.default_font_name, font_size)
+				Utils.main_font, font_size)
 			@health_updated = false
 		end
 	end
 
-	def after_death
+	def after_death(cause)
 		if @explodes
 			Thread.new do 
 				sleep(rand(0.1..0.3))
-				Explosion.new(@object_pool, x, y)
+				Explosion.new(@object_pool, x, y, cause)
 				sleep 0.3
 				object.mark_for_removal
 			end
