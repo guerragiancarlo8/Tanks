@@ -14,6 +14,10 @@ class Bullet < GameObject
     [x,y]
   end
 
+  def effect?
+    false
+  end
+
   def explode
     Explosion.new(object_pool, @x, @y)
     mark_for_removal

@@ -2,7 +2,7 @@ class Box < GameObject
 	attr_reader :x, :y, :health, :graphics, :angle
 
 	def initialize(object_pool, x, y)
-		super(object)
+		super(object_pool)
 		@x, @y = x, y
 		@graphics = BoxGraphics.new(self)
 		@health = Health.new(self, object_pool, 10, true)
@@ -13,6 +13,10 @@ class Box < GameObject
 		return unless object.physics.speed > 1.0
 		@x, @y = Utils.point_at_distance(@x, @y, object.direction,2)
 		@box = nil
+	end
+
+	def effect?
+		false
 	end
 
 	def box

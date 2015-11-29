@@ -9,6 +9,10 @@ class Explosion < GameObject
     inflict_damage
   end
 
+  def effect?
+    true
+  end
+
   private
 
   def inflict_damage

@@ -16,4 +16,8 @@ class Tree < GameObject
 	def box
 		[x,y]
 	end
+
+	def effect?
+		false
+	end
 end

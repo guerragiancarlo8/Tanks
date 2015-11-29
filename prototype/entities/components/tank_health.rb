@@ -1,5 +1,6 @@
 class TankHealth < Component
 	attr_accessor :health
+	RESPAWN_DELAY = 5000
 
 	def initialize(object, object_pool)
 		super(object)
@@ -47,5 +48,13 @@ class TankHealth < Component
 			x - @image.width/2,
 			y - object.graphics.height/2 - 
 			@image.height,100)
+	end
+
+	def should_respawn?
+		Gosu.milliseconds - @death_time > RESPAWN_DELAY
+	end
+
+	def after_death
+		@death_time = Gosu.milliseconds
 	end
 end

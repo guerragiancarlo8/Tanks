@@ -131,6 +131,17 @@ class Map
     map
   end
 
+  def spawn_points(max)
+    @spawn_points = (0..max).map do
+      find_spawn_point
+    end
+    @spawn_points_pointer = 0
+  end
+
+  def spawn_point
+    @spawn_points[(@spawn_points_pointer += 1) % @spawn_points.size]
+  end
+  
   def choose_tile(val)
     case val
     when 0.0..0.3 # 30% chance

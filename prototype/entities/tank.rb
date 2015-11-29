@@ -8,7 +8,7 @@ class Tank < GameObject
     @input = input
     @input.control(self)
     @physics = TankPhysics.new(self, object_pool)
-    @sounds = TankSounds.new(self)
+    @sounds = TankSounds.new(self, object_pool)
     @health = TankHealth.new(self, object_pool)
     @graphics = TankGraphics.new(self)
     @direction = rand(0..7) * 45
@@ -17,6 +17,10 @@ class Tank < GameObject
 
   def box
     @physics.box
+  end
+
+  def effect?
+    false
   end
 
   def shoot(target_x, target_y)

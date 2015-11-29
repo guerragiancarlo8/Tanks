@@ -90,7 +90,7 @@ module Utils
   end
 
   def self.volume(object,camera)
-    return 1 if object==camera.target
+    return 1 if object == camera.target
     distance = Utils.distance_between(
       camera.target.x, camera.target.y,
       object.x, object.y)
@@ -113,5 +113,4 @@ module Utils
   def self.volume_and_pan(object,camera)
     [volume(object,camera),pan(object,camera)]
   end
-end
 end
