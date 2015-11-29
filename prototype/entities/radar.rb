@@ -14,7 +14,7 @@ class Radar
 	end
 
 	def update
-		if Gosu.milliseconds = @last_update > UPDATE_FREQUENCY
+		if Gosu.milliseconds - @last_update > UPDATE_FREQUENCY
 			@nearby = nil
 		end
 		@nearby ||= @object_pool.nearby(@target,2000).select do |o|

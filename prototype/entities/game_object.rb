@@ -41,4 +41,9 @@ class GameObject
   def object_pool
     @object_pool
   end
+
+  #la clase que necesite effect puede sobre-escribirla
+  def effect?
+    false
+  end
 end

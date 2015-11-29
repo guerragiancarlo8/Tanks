@@ -94,7 +94,7 @@ module Utils
     distance = Utils.distance_between(
       camera.target.x, camera.target.y,
       object.x, object.y)
-    distance = [(HEARING_DISTANCE - distance),0].max
+    distance = [(HEARING_DISTANCE - distance), 0].max
     distance / HEARING_DISTANCE
   end
 

@@ -3,15 +3,22 @@ class PlayState < GameState
   attr_accessor :update_interval
 
   def initialize
+    @names = Names.new(
+      Utils.media_path('names.txt'))
     @object_pool = ObjectPool.new
     @map = Map.new(@object_pool)
+    @map.spawn_points(15)
     @camera = Camera.new
-    @tank = Tank.new(@object_pool, PlayerInput.new("",@camera))
+    @tank = Tank.new(@object_pool,
+      PlayerInput.new('Player', @camera, @object_pool))
     @camera.target = @tank
-    @radar = Radar.new(@object_pool, @tank)
+    @object_pool.camera = @camera
+    @radar = Radar.new(@object_pool,@tank)
     10.times do |i|
-      Tank.new(@object_pool, AiInput.new("",@object_pool))
+      Tank.new(@object_pool, AiInput.new(
+        @names.random, @object_pool))
     end
+    puts "Object Pool: #{@object_pool.objects.size}"
   end
 
   def enter
@@ -27,20 +34,13 @@ class PlayState < GameState
   end
 
   def update
-    #StereoSample.cleanup
+    StereoSample.cleanup
     @object_pool.objects.map(&:update)
     @object_pool.objects.reject!(&:removable?)
     @camera.update
     @radar.update
     update_caption
-    if @camera.target.health.dead?
-      close_tank = @object_pool.nearby(@camera.target,500).select do |o|
-        o.class == Tank && !o.health.dead?
-      end.first
-      if close_tank
-        @camera.target = close_tank
-      end
-    end
+    
   end
 
   def draw

@@ -1,19 +1,26 @@
 class PlayerInput < Component
   NAME_COLOR = Gosu::Color.argb(0xee084408)
 
-  def initialize(name,camera)
+  def initialize(name,camera,object_pool)
     super(nil)
     @name = name
     @camera = camera
+    @object_pool = object_pool
   end
 
   def control(obj)
     self.object = obj
+    obj.components << self
+  end
+
+  def on_collision(with)
+  end
+
+  def on_damage(amount)
   end
 
   def update
     return respawn if object.health.dead?
-    return if object.health.dead?
     d_x, d_y = @camera.target_delta_on_screen
     atan = Math.atan2(($window.width / 2) - d_x - $window.mouse_x,
                       ($window.height / 2) - d_y - $window.mouse_y)

@@ -71,7 +71,7 @@ class StereoSample
 			pan_r = 1
 		else
 			pan_l = 1
-			pan_5 = 1 + pan * 2
+			pan_r = 1 + pan * 2
 		end
 		pan_l *= volume
 		pan_r *= volume

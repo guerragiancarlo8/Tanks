@@ -16,16 +16,15 @@ class Map
     generate_boxes
   end
 
-  def find_spawn_point
-    while true
-      x = rand(0..MAP_WIDTH * TILE_SIZE)
-      y = rand(0..MAP_HEIGHT * TILE_SIZE)
-      if can_move_to?(x, y)
-        return [x, y]
-      else
-        puts "Invalid spawn point: #{[x, y]}"
-      end
+  def spawn_points(max)
+    @spawn_points = (0..max).map do
+      find_spawn_point
     end
+    @spawn_points_pointer = 0
+  end
+
+  def spawn_point
+    @spawn_points[(@spawn_points_pointer += 1) % @spawn_points.size]
   end
 
   def can_move_to?(x, y)
@@ -46,7 +45,7 @@ class Map
           if tile
             tile.draw(map_x,map_y,0)
           else
-            @water.draw(map_x,map_y,)
+            @water.draw(map_x,map_y,0)
           end
         else
           @water.draw(map_x,map_y,0)
@@ -131,17 +130,18 @@ class Map
     map
   end
 
-  def spawn_points(max)
-    @spawn_points = (0..max).map do
-      find_spawn_point
+  def find_spawn_point
+    while true
+      x = rand(0..MAP_WIDTH * TILE_SIZE)
+      y = rand(0..MAP_HEIGHT * TILE_SIZE)
+      if can_move_to?(x, y)
+        return [x, y]
+      else
+        puts "Invalid spawn point: #{[x, y]}"
+      end
     end
-    @spawn_points_pointer = 0
   end
 
-  def spawn_point
-    @spawn_points[(@spawn_points_pointer += 1) % @spawn_points.size]
-  end
-  
   def choose_tile(val)
     case val
     when 0.0..0.3 # 30% chance

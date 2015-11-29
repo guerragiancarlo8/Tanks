@@ -7,6 +7,17 @@ class Camera
     @zoom = 1
   end
 
+  def desired_spot
+    if @target.physics.moving?
+      Utils.point_at_distance(
+        @target.x, @target.y,
+        @target.direction,
+        @target.physics.speed.ceil*25)
+    else
+      [@target.x,@target.y]
+    end
+  end
+
   def mouse_coords
     x, y = target_delta_on_screen
     mouse_x_on_map = @target.x +
@@ -17,6 +28,36 @@ class Camera
   end
 
   def update
+    des_x, des_y = desired_spot
+    shift = Utils.adjust_speed(
+      @target.physics.speed).floor + 1
+    if @x < des_x
+      if des_x - @x < shift
+        @x = des_x
+      else
+        @x += shift
+      end
+    elsif @x > des_x
+      if @x - des_x < shift
+        @x = des_x
+      else
+        @x -= shift
+      end
+    end
+    if @y < des_y
+      if des_y - @y < shift
+        @y = des_y
+      else
+        @y += shift
+      end
+    elsif @y > des_y
+      if @y - des_y < shift
+        @y = des_y
+      else
+        @y -= shift
+      end
+    end
+
     shift_x = @target.physics.inertia_x
     shift_y = @target.physics.inertia_y
     @x += shift_x if @x < @target.x - $window.width / 4
@@ -68,4 +109,6 @@ class Camera
     y1 = @y + ($window.height / 2) / @zoom
     [x0, x1, y0, y1]
   end
+
+  
 end

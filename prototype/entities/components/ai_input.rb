@@ -8,7 +8,7 @@ class AiInput < Component
 		super(nil)
 		@last_update = Gosu.milliseconds
 	end
-	def draw
+	def draw(viewport)
 		@motion.draw(viewport)
 		@gun.draw(viewport)
 		@name_image ||= Gosu::Image.from_text(

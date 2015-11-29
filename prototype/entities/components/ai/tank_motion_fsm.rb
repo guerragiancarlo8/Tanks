@@ -12,11 +12,6 @@ class TankMotionFSM
 		set_state(@roaming_state)
 	end
 
-	def update
-		choose_state
-		@current_state.update
-	end
-
 	def on_collision(with)
 		@current_state.on_collision(with)
 	end
@@ -25,6 +20,21 @@ class TankMotionFSM
 		if @current_state == @roaming_state
 			set_state(@fighting_state)
 		end
+	end
+
+	def draw(viewport)
+		if $debug
+			@image && @image.draw(
+				@object.x - @image.width/2,
+				@object.y - @object.graphics.height/2 -
+				@image.height,100)
+		end
+	end
+
+
+	def update
+		choose_state
+		@current_state.update
 	end
 
 	def set_state(state)
