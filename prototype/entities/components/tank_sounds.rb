@@ -1,33 +1,44 @@
 #unlike bullet or explosion, the tank 
 #sound class has states
 class TankSounds < Component
+	def initialize(object, object_pool)
+		super(object)
+		@object_pool = object_pool
+	end
+
 	def update
+		id = object.object_id
 		if object.physics.moving?
-			if @driving && @driving.paused?
-				@driving.resume
-			elsif @driving.nil?
-				@driving = driving_sound.play(1,1,true)
+			move_volume = Utils.volume(object, @object_pool.camera)
+			pan = Utils.pan(object, @object_pool.camera)
+			if driving_sound.paused?(id)
+				driving_sound.resume(id)
+			elsif driving_sound.stopped?(id)
+				driving_sound.play(id, pan, 0.5, 1, true)
 			end
+			driving_sound.play(id, pan, 0.5, 1, true)
 		else
-			if @driving && @driving.playing?
-				@driving.pause
+			if driving_sound.playing?(id)
+				driving_sound.pause(id)
 			end
 		end
 	end
 
 	def collide
-		crash_sound.play(1,0.25,false)
+		vol, pan = Utils.volume_and_pan(
+			object, @object_pool.camera)
+		crash_sound.play(self.object_id, pan, vol, 1, false)
 	end
 
 	private
 
 	def driving_sound
-		@@driving_sound ||= Gosu::Sample.new(
+		@@driving_sound ||= StereoSample.new(
 			$window, Utils.media_path('tank_driving.mp3'))
 	end
 
 	def crash_sound
-		@@crash_sound ||= Gosu::Sample.new(
+		@@crash_sound ||= StereoSample.new(
 			$window, Utils.media_path('crash.ogg'))
 	end
 end

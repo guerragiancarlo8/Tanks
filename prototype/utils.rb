@@ -1,4 +1,5 @@
 module Utils
+  HEARING_DISTANCE = 1000.0
   def self.media_path(file)
     File.join(File.dirname(File.dirname(
       __FILE__)), 'media', file)
@@ -87,4 +88,30 @@ module Utils
     y = source_y + Math.sin(angle) * distance
     [x,y]
   end
+
+  def self.volume(object,camera)
+    return 1 if object==camera.target
+    distance = Utils.distance_between(
+      camera.target.x, camera.target.y,
+      object.x, object.y)
+    distance = [(HEARING_DISTANCE - distance),0].max
+    distance / HEARING_DISTANCE
+  end
+
+  def self.pan(object,camera)
+    return 0 if object == camera.target
+    pan = object.x - camera.target.x
+    sig = pan > 0 ? 1 : -1
+    pan = (pan % HEARING_DISTANCE)/HEARING_DISTANCE
+    if sig > 0
+      pan
+    else
+      -1 + pan
+    end
+  end
+
+  def self.volume_and_pan(object,camera)
+    [volume(object,camera),pan(object,camera)]
+  end
+end
 end

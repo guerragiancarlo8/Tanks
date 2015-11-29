@@ -3,11 +3,12 @@ class PlayState < GameState
   attr_accessor :update_interval
 
   def initialize
-    @map = Map.new
+    @map = Map.new(@object_pool)
     @camera = Camera.new
     @object_pool = ObjectPool.new(@map)
     @tank = Tank.new(@object_pool, PlayerInput.new(@camera))
     @camera.target = @tank
+    @radar = Radar.new(@object_pool, @tank)
     10.times do |i|
       Tank.new(@object_pool, AiInput.new(@object_pool))
     end
@@ -26,9 +27,11 @@ class PlayState < GameState
   end
 
   def update
+    #StereoSample.cleanup
     @object_pool.objects.map(&:update)
     @object_pool.objects.reject!(&:removable?)
     @camera.update
+    @radar.update
     update_caption
     if @camera.target.health.dead?
       close_tank = @object_pool.nearby(@camera.target,500).select do |o|
@@ -54,6 +57,7 @@ class PlayState < GameState
       end
     end
     @camera.draw_crosshair
+    @radar.draw
   end
 
   def button_down(id)
