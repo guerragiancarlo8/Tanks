@@ -17,14 +17,22 @@ class TankFleeingState < TankMotionState
 	end
 
 	def change_direction
-		@object.physics.change_direction(
-			180 + @gun.desired_gun_angle - 
-			@gun.desired_gun_angle % 45)
-
+		closest_powerup = @vision.closest_powerup(
+			RepairPowerup, HealthPowerup)
+		if closest_powerup
+			angle = Utils.angle_between(
+				@object.x, @object.y,
+				closest_powerup.x, closest_powerup.y)
+			@object.physics.x, closest_powerup.y)
+			@object.physics.change_direction(
+				angle - angle % 45)
+		else
+			#reverse from enemy
+		end
 		@changed_direction_at = Gosu.milliseconds
 		@will_keep_direction_for = turn_time
 	end
-
+		
 	def drive_time
 		10000
 	end

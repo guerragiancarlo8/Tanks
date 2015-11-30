@@ -28,10 +28,11 @@ class MenuState < GameState
 	end
 
 	def update
+		text = "Q: Quit\nN: New Game\nD: Demo"
 		continue_text = @play_state ? "C = Continue, " : ""
 		@info = Gosu::Image.from_text(
-			$window, "Q = Quit, #{continue_text}N = New Game",
-			Gosu.default_font_name,30)
+			$window, text,
+			Utils.main_font,30)
 	end
 
 	def draw
@@ -46,6 +47,10 @@ class MenuState < GameState
 		end
 		if id == Gosu::KbN
 			@play_state = PlayState.new
+			GameState.switch(@play_state)
+		end
+		if id == Gosu::KbD
+			@play_state = DemoState.new
 			GameState.switch(@play_state)
 		end
 	end

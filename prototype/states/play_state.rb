@@ -1,5 +1,5 @@
 class PlayState < GameState
-  attr_accessor :update_interval, :object_pool
+  attr_accessor :update_interval, :object_pool, :tank
 
   def initialize
     @names = Names.new(
@@ -8,6 +8,8 @@ class PlayState < GameState
     @map = Map.new(@object_pool)
     @map.spawn_points(15)
     @camera = Camera.new
+    @object_pool.camera = @camera
+    create_tanks(4)
     @tank = Tank.new(@object_pool,
       PlayerInput.new('Player', @camera, @object_pool))
     @camera.target = @tank
@@ -59,6 +61,10 @@ class PlayState < GameState
       leave
       $window.close
     end
+    if id == Gosu::KbF1
+      $debug = !$debug
+    end
+    
     if id == Gosu::KbEscape
       pause = PauseState.instance
       pause.play_state = self
@@ -81,6 +87,18 @@ class PlayState < GameState
   end
 
   private
+
+  def create_tanks(amount)
+    @map.spawn_points(amount * 3)
+    @tank = Tank.new(@object_pool,
+      PlayerInput.new('Player',@camera, @object_pool))
+    amount.times do |i|
+      Tank.new(@object_pool, AiInput.new(
+        @names.random, @object_pool))
+    end
+    @camera.target = @tank
+    @hud = HUD.new(@object_pool, @tank)
+  end
 
   def toggle_profiling
     require 'ruby-prof' unless defined?(RubyProf)
