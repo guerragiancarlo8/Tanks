@@ -33,7 +33,51 @@ class AiVision
 		@closest_powerup ||= find_closest_powerup(*suitable)
 	end
 
+	def can_go_forward?
+		in_front = Utils.point_at_distance(
+			*@viewer.location, @viewer.direction, 40)
+		@object.pool.map.can_move_to?(*in_front) &&
+			@object_pool.nearby_point(*in_front, 40, @viewer)
+				.reject { |o| o.is_a? Powerup }.empty?
+	end
+
+	def closest_free_path(away_from = nil)
+		paths = []
+		5.times do |i|
+			if paths.any?
+				return farthest_from(paths, away_from)
+			end
+			radius = 55 - i*5
+			range_x = range_y = [-radius, 0, radius]
+			range_x.shuffle.each do |x|
+				range_y.shuffle.each do |y|
+					x = @viewer.x + x
+					y = @viewer.y + y
+					if @object_pool.map.can_move_to?(x,y) &&
+						@object_pool.nearby_point(x, y, radius, @viewer)
+							.reject {|o| o.is_a? Powerup }.empty?
+						if away_from
+							paths << [x,y]
+						else
+							return [x,y]
+						end
+					end
+				end
+			end
+		end
+		false
+	end
+
+	alias :closest_free_path_away_from :closest_free_path
+
 	private
+
+	def farthest_from(paths, away_from)
+		paths.sort do |p1, p2|
+			Utils.distance_between(*p1, *away_from) <=>
+				Utils.distance_between(*p2, *away_from)
+		end.first
+	end
 
 	def find_closest_tank
 		@in_sight.select do |o|
