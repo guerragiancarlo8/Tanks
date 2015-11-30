@@ -1,5 +1,5 @@
 class ObjectPool
-  attr_accessor :objects, :map, :camera, :powerup_respawn_queue
+  attr_accessor :map, :camera, :objects, :powerup_respawn_queue
 
   def size
     @objects.size
@@ -7,8 +7,8 @@ class ObjectPool
 
   def initialize(box)
     @tree = QuadTree.new(box)
-    @objects = []
     @powerup_respawn_queue = PowerupRespawnQueue.new
+    @objects = []
   end
 
   def add(object)
@@ -25,7 +25,7 @@ class ObjectPool
   end
 
   def update_all
-    @objects.map(&:update)
+    @objects.each(&:update)
     @objects.reject! do |o|
       if o.removable?
         @tree.remove(o)
@@ -35,19 +35,24 @@ class ObjectPool
     @powerup_respawn_queue.respawn(self)
   end
 
-  def nearby(object, max_distance)
-    cx, cy = object.location
+  def nearby_point(cx, cy, max_distance, object = nil)
     hx, hy = cx + max_distance, cy + max_distance
-    #fast rough results
+    # Fast, rough results
     results = @tree.query_range(
-      AxisAlignedBoundingBox.new([cx,cy],[hx,hy]))
+      AxisAlignedBoundingBox.new([cx, cy], [hx, hy]))
+    # Sift through to select fine-grained results
     results.select do |o|
       o != object &&
         Utils.distance_between(
-          o.x, o.y, object.x, object.y) <= max_distance
+          o.x, o.y, cx, cy) <= max_distance
     end
   end
-    
+
+  def nearby(object, max_distance)
+    cx, cy = object.location
+    nearby_point(cx, cy, max_distance, object)
+  end
+
   def query_range(box)
     @tree.query_range(box)
   end

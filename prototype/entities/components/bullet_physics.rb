@@ -1,6 +1,6 @@
 class BulletPhysics < Component
   START_DIST = 20
-  MAX_DIST = 300
+  MAX_DIST = 500
 
   def initialize(game_object, object_pool)
     super(game_object)
@@ -41,14 +41,14 @@ class BulletPhysics < Component
 
   def check_hit
     @object_pool.nearby(object, 50).each do |obj|
-      next if obj == object.source
+      next if obj == object.source # Don't hit source tank
       if obj.class == Tree
         if Utils.distance_between(x, y, obj.x, obj.y) < 10
           return do_hit(obj) if obj.respond_to?(:health)
         end
       elsif Utils.point_in_poly(x, y, *obj.box)
-        #direct hit. extra damage
-        return do_hit(obj)
+        # Direct hit - extra damage
+        return do_hit(obj) if obj.respond_to?(:health)
       end
     end
   end

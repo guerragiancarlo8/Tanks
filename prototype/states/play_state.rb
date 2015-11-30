@@ -2,34 +2,22 @@ class PlayState < GameState
   attr_accessor :update_interval, :object_pool, :tank
 
   def initialize
+    # http://www.paulandstorm.com/wha/clown-names/
     @names = Names.new(
       Utils.media_path('names.txt'))
     @object_pool = ObjectPool.new(Map.bounding_box)
     @map = Map.new(@object_pool)
-    @map.spawn_points(15)
     @camera = Camera.new
     @object_pool.camera = @camera
-    create_tanks(4)
-    @tank = Tank.new(@object_pool,
-      PlayerInput.new('Player', @camera, @object_pool))
-    @camera.target = @tank
-    @object_pool.camera = @camera
-    @radar = Radar.new(@object_pool,@tank)
-    10.times do |i|
-      Tank.new(@object_pool, AiInput.new(
-        @names.random, @object_pool))
-    end
-    puts "Object Pool: #{@object_pool.objects.size}"
-    @hud = HUD.new(@object_pool, @tank)
+    create_tanks(7)
   end
 
   def update
     StereoSample.cleanup
     @object_pool.update_all
     @camera.update
-    @radar.update
-    update_caption
     @hud.update
+    update_caption
   end
 
   def draw
@@ -40,7 +28,7 @@ class PlayState < GameState
     viewport = @camera.viewport
     x1, x2, y1, y2 = viewport
     box = AxisAlignedBoundingBox.new(
-      [x1 + (x2 - x1)/2, y1 + (y2 - y1)/2],
+      [x1 + (x2 - x1) / 2, y1 + (y2 - y1) / 2],
       [x1 - Map::TILE_SIZE, y1 - Map::TILE_SIZE])
     $window.translate(off_x, off_y) do
       zoom = @camera.zoom
@@ -51,20 +39,10 @@ class PlayState < GameState
         end
       end
     end
-    @camera.draw_crosshair
-    @radar.draw
     @hud.draw
   end
 
   def button_down(id)
-    if id == Gosu::KbQ
-      leave
-      $window.close
-    end
-    if id == Gosu::KbF1
-      $debug = !$debug
-    end
-    
     if id == Gosu::KbEscape
       pause = PauseState.instance
       pause.play_state = self
@@ -72,13 +50,33 @@ class PlayState < GameState
     end
     if id == Gosu::KbT
       t = Tank.new(@object_pool,
-                    AiInput.new(@object_pool))
-      t.x, t.y = @camera.mouse_coords
+        AiInput.new(@names.random, @object_pool))
+      t.move(*@camera.mouse_coords)
+    end
+    if id == Gosu::KbF1
+      $debug = !$debug
+    end
+    if id == Gosu::KbF2
+      toggle_profiling
+    end
+    if id == Gosu::KbF3
+      puts @tank
+    end
+    if id == Gosu::KbR
+      @tank.mark_for_removal
+      @tank = Tank.new(@object_pool,
+        PlayerInput.new('Player', @camera, @object_pool))
+      @camera.target = @tank
+      @hud.player = @tank
     end
   end
 
   def leave
     StereoSample.stop_all
+    if @profiling_now
+      toggle_profiling
+    end
+    puts "Pool: #{@object_pool.size}"
     @hud.active = false
   end
 
@@ -91,7 +89,7 @@ class PlayState < GameState
   def create_tanks(amount)
     @map.spawn_points(amount * 3)
     @tank = Tank.new(@object_pool,
-      PlayerInput.new('Player',@camera, @object_pool))
+      PlayerInput.new('Player', @camera, @object_pool))
     amount.times do |i|
       Tank.new(@object_pool, AiInput.new(
         @names.random, @object_pool))

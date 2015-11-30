@@ -2,16 +2,16 @@ require 'perlin_noise'
 require 'gosu_texture_packer'
 
 class Map
-  MAP_WIDTH = 100
-  MAP_HEIGHT = 100
+  MAP_WIDTH = 30
+  MAP_HEIGHT = 30
   TILE_SIZE = 128
 
   def self.bounding_box
-    center = [MAP_WIDTH * TILE_SIZE/2,
-              MAP_HEIGHT * TILE_SIZE/2]
+    center = [MAP_WIDTH * TILE_SIZE / 2,
+              MAP_HEIGHT * TILE_SIZE / 2]
     half_dimension = [MAP_WIDTH * TILE_SIZE,
                       MAP_HEIGHT * TILE_SIZE]
-    AxisAlignedBoundingBox.new(center,half_dimension)
+    AxisAlignedBoundingBox.new(center, half_dimension)
   end
 
   def initialize(object_pool)
@@ -40,8 +40,8 @@ class Map
     tile && tile != @water
   end
 
-  def movement_penalty(x,y)
-    tile = tile_at(x,y)
+  def movement_penalty(x, y)
+    tile = tile_at(x, y)
     case tile
     when @sand
       0.33
@@ -51,7 +51,7 @@ class Map
   end
 
   def draw(viewport)
-    viewport.map! { |p| p/TILE_SIZE }
+    viewport = viewport.map { |p| p / TILE_SIZE }
     x0, x1, y0, y1 = viewport.map(&:to_i)
     (x0-1..x1).each do |x|
       (y0-1..y1).each do |y|
@@ -61,12 +61,12 @@ class Map
         if row
           tile = @map[x][y]
           if tile
-            tile.draw(map_x,map_y,0)
+            tile.draw(map_x, map_y, 0)
           else
-            @water.draw(map_x,map_y,0)
+            @water.draw(map_x, map_y, 0)
           end
         else
-          @water.draw(map_x,map_y,0)
+          @water.draw(map_x, map_y, 0)
         end
       end
     end
@@ -110,7 +110,7 @@ class Map
   def generate_trees
     noises = Perlin::Noise.new(2)
     contrast = Perlin::Curve.contrast(
-      Perlin::Curve::CUBIC,2)
+      Perlin::Curve::CUBIC, 2)
     trees = 0
     target_trees = rand(1500..1500)
     while trees < target_trees do
@@ -118,8 +118,8 @@ class Map
       y = rand(0..MAP_HEIGHT * TILE_SIZE)
       n = noises[x * 0.001, y * 0.001]
       n = contrast.call(n)
-      if tile_at(x,y) == @grass && n > 0.5
-        Tree.new(@object_pool, x, y, n*2 - 1)
+      if tile_at(x, y) == @grass && n > 0.5
+        Tree.new(@object_pool, x, y, n * 2 - 1)
         trees += 1
       end
     end
@@ -131,7 +131,7 @@ class Map
     while boxes < target_boxes do
       x = rand(0..MAP_WIDTH * TILE_SIZE)
       y = rand(0..MAP_HEIGHT * TILE_SIZE)
-      if tile_at(x,y) != @water
+      if tile_at(x, y) != @water
         Box.new(@object_pool, x, y)
         boxes += 1
       end
@@ -140,7 +140,7 @@ class Map
 
   def generate_powerups
     pups = 0
-    target_pups = rand(200..300)
+    target_pups = rand(20..30)
     while pups < target_pups do
       x = rand(0..MAP_WIDTH * TILE_SIZE)
       y = rand(0..MAP_HEIGHT * TILE_SIZE)
@@ -163,9 +163,9 @@ class Map
     case val
     when 0.0..0.3 # 30% chance
       @water
-    when 0.3..0.45 # 15% chance, water edges
+    when 0.3..0.5 # 20% chance, water edges
       @sand
-    else # 55% chance
+    else # 50% chance
       @grass
     end
   end
@@ -179,9 +179,8 @@ class Map
       if can_move_to?(x, y) &&
           @object_pool.nearby_point(x, y, 150).empty?
         return [x, y]
-      else
-        puts "Invalid spawn point: #{[x, y]}"
       end
     end
   end
+
 end
